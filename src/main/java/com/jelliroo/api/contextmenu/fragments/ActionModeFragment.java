@@ -31,6 +31,10 @@ public abstract class ActionModeFragment extends Fragment implements ActionModeL
         actionModeHelper.toggleSelection(pos);
     }
 
+    public final void toggleSelectAll(){
+        actionModeHelper.toggleSelectAll();
+    }
+
     protected final void updateActionModeTitle() {
         actionModeHelper.updateActionModeTitle();
     }
@@ -62,6 +66,10 @@ public abstract class ActionModeFragment extends Fragment implements ActionModeL
 
     protected void setMultiSelectEnabled(boolean multiSelectEnabled) {
         actionModeHelper.setMultiSelectEnabled(multiSelectEnabled);
+    }
+
+    public void setSingleSelectEnabled(boolean singleSelectEnabled) {
+        actionModeHelper.setSingleSelectEnabled(singleSelectEnabled);
     }
 
     protected RecyclerView getRecyclerView(){

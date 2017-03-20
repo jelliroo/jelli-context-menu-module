@@ -14,4 +14,6 @@ public interface ActionModeListener {
 
     boolean onContextMenuItemSelected(List selectedItems, int actionCode);
 
+    void onItemSelected(Object object);
+
 }

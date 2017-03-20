@@ -39,6 +39,16 @@ public class ActionModeHelper {
 
     private boolean multiSelectEnabled = true;
 
+    private boolean singleSelectEnabled = true;
+
+    /**
+     *  multi sing
+     *  true  true
+     *  true  false
+     *  false true
+     *  false false
+     */
+
     private Context context;
 
     private ActionModeListener actionModeListener;
@@ -92,34 +102,47 @@ public class ActionModeHelper {
             @Override
             public void onLongPress(MotionEvent e) {
 
-                if(!multiSelectEnabled) return;
-
-                View view = recyclerView.findChildViewUnder(e.getX(), e.getY());
-
-
-                int position = recyclerView.getChildAdapterPosition(view);
-
-                if(position == -1) return;
-
-
-                if (actionMode != null) {
-                    return;
+                if(multiSelectEnabled && singleSelectEnabled){
+                    View view = recyclerView.findChildViewUnder(e.getX(), e.getY());
+                    int position = recyclerView.getChildAdapterPosition(view);
+                    if(position == -1) return;
+                    if (actionMode != null) {
+                        return;
+                    }
+                    actionMode = ((AppCompatActivity) context).startSupportActionMode(supportCallbackAdapter);
+                    toggleSelection(position);
+                    actionModeListener.onContextMenuOpened();
                 }
 
-                actionMode = ((AppCompatActivity) context).startSupportActionMode(supportCallbackAdapter);
 
-
-
-                toggleSelection(position);
-                actionModeListener.onContextMenuOpened();
             }
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
-                if(actionMode == null) return super.onSingleTapUp(e);
                 View view = recyclerView.findChildViewUnder(e.getX(), e.getY());
                 int position = recyclerView.getChildAdapterPosition(view);
-                toggleSelection(position);
+                if(multiSelectEnabled && singleSelectEnabled) {
+                    if (actionMode == null) {
+                        actionModeListener.onItemSelected(actionModeHelperInterface.getAdapter().getItemAt(position));
+                    } else {
+                        toggleSelection(position);
+                    }
+
+                } else if(!multiSelectEnabled && singleSelectEnabled){
+                    actionModeListener.onItemSelected(actionModeHelperInterface.getAdapter().getItemAt(position));
+                } else if(multiSelectEnabled && !singleSelectEnabled){
+                    if(actionMode == null){
+                        if(position == -1) return true;
+                        if (actionMode != null) {
+                            return true;
+                        }
+                        actionMode = ((AppCompatActivity) context).startSupportActionMode(supportCallbackAdapter);
+                        toggleSelection(position);
+                        actionModeListener.onContextMenuOpened();
+                    } else {
+                        toggleSelection(position);
+                    }
+                }
                 return true;
             }
         };
@@ -136,6 +159,11 @@ public class ActionModeHelper {
         if(actionModeHelperInterface.getAdapter().getSelectedItemCount() == 0){
             exitActionMode();
         }
+    }
+
+    public final void toggleSelectAll(){
+        actionModeHelperInterface.getAdapter().toggleSelectAll();
+        updateActionModeTitle();
     }
 
     public final void updateActionModeTitle() {
@@ -181,6 +209,10 @@ public class ActionModeHelper {
 
     public void setMultiSelectEnabled(boolean multiSelectEnabled) {
         this.multiSelectEnabled = multiSelectEnabled;
+    }
+
+    public void setSingleSelectEnabled(boolean singleSelectEnabled) {
+        this.singleSelectEnabled = singleSelectEnabled;
     }
 
     public RecyclerView getRecyclerView() {
